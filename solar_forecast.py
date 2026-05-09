@@ -18,6 +18,20 @@ Usage:
 
 import logging
 import warnings
+
+from pathlib import Path
+import yaml
+
+
+def load_config(config_path=None):
+    """Load configuration from YAML file."""
+    if config_path is None:
+        config_path = Path(__file__).parent / 'config.yaml'
+    if not config_path.exists():
+        return {}
+    with open(config_path) as _f:
+        return _yaml.safe_load(_f) or {}
+
 warnings.filterwarnings("ignore")
 
 import matplotlib
@@ -143,7 +157,7 @@ def forecast(
 
 
 def plot_full_series(series: pd.Series, test_start: pd.Timestamp, path: str):
-    fig, ax = plt.subplots(figsize=(12, 4))
+    fig, ax = plt.subplots(figsize=tuple(config.get('output', {}).get('figsize', [12, 4])))
     ax.plot(series.index, series.values, linewidth=0.7, color="black", label="Daily GHI")
     ax.axvline(test_start, color="red", linestyle="--", linewidth=0.9, label="Train/Test split")
     ax.set_title("Daily Solar Irradiance — Albuquerque, NM (kWh/m²)")
@@ -174,7 +188,7 @@ def plot_stl(result, path: str):
 
 
 def plot_forecast(actual: pd.Series, predicted: pd.Series, metrics: dict, path: str):
-    fig, ax = plt.subplots(figsize=(12, 4))
+    fig, ax = plt.subplots(figsize=tuple(config.get('output', {}).get('figsize', [12, 4])))
     ax.plot(actual.index, actual.values, color="black", linewidth=1.2, label="Actual")
     ax.plot(predicted.index, predicted.values, color="red", linewidth=1.2,
             linestyle="--", label="STL+ARIMA Forecast")
@@ -203,10 +217,10 @@ def main():
     actual, predicted, metrics = forecast(series)
     logger.info("Forecast metrics: %s", metrics)
     for k, v in metrics.items():
-        print(f"  {k}: {v:.3f}")
+        logger.info(f"  {k}: {v:.3f}")
 
     plot_forecast(actual, predicted, metrics, "03_solar_forecast.png")
-    print("\nOutputs: 01_solar_full_series.png  02_solar_stl_decomposition.png  03_solar_forecast.png")
+    logger.info("\nOutputs: 01_solar_full_series.png  02_solar_stl_decomposition.png  03_solar_forecast.png")
 
 
 if __name__ == "__main__":

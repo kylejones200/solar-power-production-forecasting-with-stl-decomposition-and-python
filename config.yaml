@@ -1,0 +1,10 @@
+data:
+  freq: 1h
+output:
+  figures_dir: images
+  figure_format: png
+  figure_dpi: 100
+  font_family: serif
+  figsize:
+  - 12
+  - 4
