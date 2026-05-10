@@ -156,51 +156,54 @@ def forecast(
     return test, forecast_series, metrics
 
 
-def plot_full_series(series: pd.Series, test_start: pd.Timestamp, path: str):
-    fig, ax = plt.subplots(figsize=tuple(config.get('output', {}).get('figsize', [12, 4])))
-    ax.plot(series.index, series.values, linewidth=0.7, color="black", label="Daily GHI")
-    ax.axvline(test_start, color="red", linestyle="--", linewidth=0.9, label="Train/Test split")
-    ax.set_title("Daily Solar Irradiance — Albuquerque, NM (kWh/m²)")
-    ax.set_ylabel("GHI (kWh/m²)")
-    ax.legend(fontsize=9)
-    fig.tight_layout()
-    fig.savefig(path, bbox_inches="tight")
-    plt.close(fig)
+def plot_full_series(series: pd.Series, test_start: pd.Timestamp, path: str, plot: bool = False):
+    if plot:
+        fig, ax = plt.subplots(figsize=tuple(config.get('output', {}).get('figsize', [12, 4])))
+        ax.plot(series.index, series.values, linewidth=0.7, color="black", label="Daily GHI")
+        ax.axvline(test_start, color="red", linestyle="--", linewidth=0.9, label="Train/Test split")
+        ax.set_title("Daily Solar Irradiance — Albuquerque, NM (kWh/m²)")
+        ax.set_ylabel("GHI (kWh/m²)")
+        ax.legend(fontsize=9)
+        fig.tight_layout()
+        fig.savefig(path, bbox_inches="tight")
+        plt.close(fig)
     logger.info("Saved: %s", path)
 
 
-def plot_stl(result, path: str):
-    fig, axes = plt.subplots(4, 1, figsize=(12, 9), sharex=True)
-    components = [
-        (result.observed, "Observed"),
-        (result.trend, "Trend"),
-        (result.seasonal, "Seasonal"),
-        (result.resid, "Residual"),
-    ]
-    for ax, (data, label) in zip(axes, components):
-        ax.plot(data.index, data.values, linewidth=0.7, color="black")
-        ax.set_ylabel(label, fontsize=9)
-    axes[0].set_title("STL Decomposition of Daily Solar GHI")
-    fig.tight_layout()
-    fig.savefig(path, bbox_inches="tight")
-    plt.close(fig)
+def plot_stl(result, path: str, plot: bool = False):
+    if plot:
+        fig, axes = plt.subplots(4, 1, figsize=(12, 9), sharex=True)
+        components = [
+            (result.observed, "Observed"),
+            (result.trend, "Trend"),
+            (result.seasonal, "Seasonal"),
+            (result.resid, "Residual"),
+        ]
+        for ax, (data, label) in zip(axes, components):
+            ax.plot(data.index, data.values, linewidth=0.7, color="black")
+            ax.set_ylabel(label, fontsize=9)
+        axes[0].set_title("STL Decomposition of Daily Solar GHI")
+        fig.tight_layout()
+        fig.savefig(path, bbox_inches="tight")
+        plt.close(fig)
     logger.info("Saved: %s", path)
 
 
-def plot_forecast(actual: pd.Series, predicted: pd.Series, metrics: dict, path: str):
-    fig, ax = plt.subplots(figsize=tuple(config.get('output', {}).get('figsize', [12, 4])))
-    ax.plot(actual.index, actual.values, color="black", linewidth=1.2, label="Actual")
-    ax.plot(predicted.index, predicted.values, color="red", linewidth=1.2,
-            linestyle="--", label="STL+ARIMA Forecast")
-    ax.set_title(
-        f"Solar GHI Forecast — Test Set  |  MAE={metrics['MAE']:.2f}  "
-        f"RMSE={metrics['RMSE']:.2f}  MAPE={metrics['MAPE (%)']:.1f}%"
-    )
-    ax.set_ylabel("GHI (kWh/m²)")
-    ax.legend(fontsize=9)
-    fig.tight_layout()
-    fig.savefig(path, bbox_inches="tight")
-    plt.close(fig)
+def plot_forecast(actual: pd.Series, predicted: pd.Series, metrics: dict, path: str, plot: bool = False):
+    if plot:
+        fig, ax = plt.subplots(figsize=tuple(config.get('output', {}).get('figsize', [12, 4])))
+        ax.plot(actual.index, actual.values, color="black", linewidth=1.2, label="Actual")
+        ax.plot(predicted.index, predicted.values, color="red", linewidth=1.2,
+                linestyle="--", label="STL+ARIMA Forecast")
+        ax.set_title(
+            f"Solar GHI Forecast — Test Set  |  MAE={metrics['MAE']:.2f}  "
+            f"RMSE={metrics['RMSE']:.2f}  MAPE={metrics['MAPE (%)']:.1f}%"
+        )
+        ax.set_ylabel("GHI (kWh/m²)")
+        ax.legend(fontsize=9)
+        fig.tight_layout()
+        fig.savefig(path, bbox_inches="tight")
+        plt.close(fig)
     logger.info("Saved: %s", path)
 
 
