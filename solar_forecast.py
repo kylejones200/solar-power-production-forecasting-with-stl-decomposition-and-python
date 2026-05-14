@@ -16,6 +16,7 @@ Usage:
     python solar_forecast.py
 """
 
+import signalplot
 import logging
 import warnings
 
@@ -55,13 +56,7 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
 
-plt.rcParams.update({
-    "font.family": "serif",
-    "axes.spines.top": False,
-    "axes.spines.right": False,
-    "axes.linewidth": 0.8,
-    "figure.dpi": 120,
-})
+signalplot.apply(font_family='serif')
 
 # --- Location: Albuquerque, NM (high solar resource) ---
 LATITUDE = 35.0844
