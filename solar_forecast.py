@@ -18,7 +18,6 @@ Usage:
 
 import signalplot
 import logging
-import warnings
 
 from pathlib import Path
 import yaml
@@ -33,7 +32,6 @@ def load_config(config_path=None):
     with open(config_path) as _f:
         return _yaml.safe_load(_f) or {}
 
-warnings.filterwarnings("ignore")
 
 import matplotlib
 matplotlib.use("Agg")
