@@ -10,9 +10,9 @@ The standard mistake is treating daily solar output as a single time series and 
 
 STL decomposition (Seasonal-Trend decomposition using LOESS) solves this cleanly by separating the problem:
 
-1. **Trend** — the slow drift in baseline production (climate, degradation, capacity changes)
-2. **Seasonal** — the repeating annual solar cycle
-3. **Residual** — weather noise and unexplained variation
+1. Trend — the slow drift in baseline production (climate, degradation, capacity changes)
+2. Seasonal — the repeating annual solar cycle
+3. Residual — weather noise and unexplained variation
 
 You then forecast the trend with ARIMA, project the seasonal component by repeating the most recent cycle, and recombine. Each model does what it's good at.
 
@@ -33,9 +33,9 @@ daily_ghi = trend + seasonal + residual        (STL)
 forecast  = ARIMA(trend) + seasonal[-365:] + mean(residual)
 ```
 
-- **Train:** 3 years of daily GHI
-- **Test:** final 90 days (one quarter)
-- **ARIMA order:** (2,1,2) on trend component
+- Train: 3 years of daily GHI
+- Test: final 90 days (one quarter)
+- ARIMA order: (2,1,2) on trend component
 
 ## Results
 

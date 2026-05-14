@@ -90,20 +90,19 @@ def generate_solar_series(
         daily = cs["ghi"].resample("D").sum() / 1000  # kWh/m²
         daily.name = "ghi_kwh_m2"
         return daily.tz_localize(None)
-    else:
-        logger.info("pvlib not found — using synthetic seasonal series.")
-        dates = pd.date_range(start, end, freq="D")
-        n = len(dates)
-        day_of_year = np.array([d.timetuple().tm_yday for d in dates])
-        seasonal = 4.5 + 2.8 * np.sin(2 * np.pi * (day_of_year - 80) / 365)
-        trend = np.linspace(0, 0.3, n)
-        noise = np.random.default_rng(42).normal(0, 0.25, n)
-        series = pd.Series(
-            np.clip(seasonal + trend + noise, 0, None),
-            index=dates,
-            name="ghi_kwh_m2",
-        )
-        return series
+    logger.info("pvlib not found — using synthetic seasonal series.")
+    dates = pd.date_range(start, end, freq="D")
+    n = len(dates)
+    day_of_year = np.array([d.timetuple().tm_yday for d in dates])
+    seasonal = 4.5 + 2.8 * np.sin(2 * np.pi * (day_of_year - 80) / 365)
+    trend = np.linspace(0, 0.3, n)
+    noise = np.random.default_rng(42).normal(0, 0.25, n)
+    series = pd.Series(
+        np.clip(seasonal + trend + noise, 0, None),
+        index=dates,
+        name="ghi_kwh_m2",
+    )
+    return series
 
 
 def stl_decompose(series: pd.Series, period: int = 365) -> STL:
