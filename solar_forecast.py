@@ -16,16 +16,16 @@ Usage:
     python solar_forecast.py
 """
 
-import signalplot
 import logging
-
 from pathlib import Path
+
+import signalplot
 
 
 def load_config(config_path=None):
     """Load configuration from YAML file."""
     if config_path is None:
-        config_path = Path(__file__).parent / 'config.yaml'
+        config_path = Path(__file__).parent / "config.yaml"
     if not config_path.exists():
         return {}
     with open(config_path) as _f:
@@ -33,6 +33,7 @@ def load_config(config_path=None):
 
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
@@ -43,6 +44,7 @@ from statsmodels.tsa.seasonal import STL
 
 try:
     import pvlib
+
     HAS_PVLIB = True
 except ImportError:
     HAS_PVLIB = False
@@ -53,7 +55,7 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
 
-signalplot.apply(font_family='serif')
+signalplot.apply(font_family="serif")
 
 # --- Location: Albuquerque, NM (high solar resource) ---
 LATITUDE = 35.0844
@@ -147,11 +149,23 @@ def forecast(
     return test, forecast_series, metrics
 
 
-def plot_full_series(series: pd.Series, test_start: pd.Timestamp, path: str, plot: bool = False):
+def plot_full_series(
+    series: pd.Series, test_start: pd.Timestamp, path: str, plot: bool = False
+):
     if plot:
-        fig, ax = plt.subplots(figsize=tuple(config.get('output', {}).get('figsize', [12, 4])))
-        ax.plot(series.index, series.values, linewidth=0.7, color="black", label="Daily GHI")
-        ax.axvline(test_start, color="red", linestyle="--", linewidth=0.9, label="Train/Test split")
+        fig, ax = plt.subplots(
+            figsize=tuple(config.get("output", {}).get("figsize", [12, 4]))
+        )
+        ax.plot(
+            series.index, series.values, linewidth=0.7, color="black", label="Daily GHI"
+        )
+        ax.axvline(
+            test_start,
+            color="red",
+            linestyle="--",
+            linewidth=0.9,
+            label="Train/Test split",
+        )
         ax.set_title("Daily Solar Irradiance — Albuquerque, NM (kWh/m²)")
         ax.set_ylabel("GHI (kWh/m²)")
         ax.legend(fontsize=9)
@@ -180,12 +194,28 @@ def plot_stl(result, path: str, plot: bool = False):
     logger.info("Saved: %s", path)
 
 
-def plot_forecast(actual: pd.Series, predicted: pd.Series, metrics: dict, path: str, plot: bool = False):
+def plot_forecast(
+    actual: pd.Series,
+    predicted: pd.Series,
+    metrics: dict,
+    path: str,
+    plot: bool = False,
+):
     if plot:
-        fig, ax = plt.subplots(figsize=tuple(config.get('output', {}).get('figsize', [12, 4])))
-        ax.plot(actual.index, actual.values, color="black", linewidth=1.2, label="Actual")
-        ax.plot(predicted.index, predicted.values, color="red", linewidth=1.2,
-                linestyle="--", label="STL+ARIMA Forecast")
+        fig, ax = plt.subplots(
+            figsize=tuple(config.get("output", {}).get("figsize", [12, 4]))
+        )
+        ax.plot(
+            actual.index, actual.values, color="black", linewidth=1.2, label="Actual"
+        )
+        ax.plot(
+            predicted.index,
+            predicted.values,
+            color="red",
+            linewidth=1.2,
+            linestyle="--",
+            label="STL+ARIMA Forecast",
+        )
         ax.set_title(
             f"Solar GHI Forecast — Test Set  |  MAE={metrics['MAE']:.2f}  "
             f"RMSE={metrics['RMSE']:.2f}  MAPE={metrics['MAPE (%)']:.1f}%"
@@ -200,7 +230,12 @@ def plot_forecast(actual: pd.Series, predicted: pd.Series, metrics: dict, path: 
 
 def main():
     series = generate_solar_series()
-    logger.info("Series: %d days  (%s → %s)", len(series), series.index[0].date(), series.index[-1].date())
+    logger.info(
+        "Series: %d days  (%s → %s)",
+        len(series),
+        series.index[0].date(),
+        series.index[-1].date(),
+    )
 
     plot_full_series(series, series.index[-TEST_DAYS], "01_solar_full_series.png")
 
@@ -214,7 +249,9 @@ def main():
         logger.info(f"  {k}: {v:.3f}")
 
     plot_forecast(actual, predicted, metrics, "03_solar_forecast.png")
-    logger.info("\nOutputs: 01_solar_full_series.png  02_solar_stl_decomposition.png  03_solar_forecast.png")
+    logger.info(
+        "\nOutputs: 01_solar_full_series.png  02_solar_stl_decomposition.png  03_solar_forecast.png"
+    )
 
 
 if __name__ == "__main__":
