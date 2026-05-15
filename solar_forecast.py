@@ -20,7 +20,6 @@ import signalplot
 import logging
 
 from pathlib import Path
-import yaml
 
 
 def load_config(config_path=None):
