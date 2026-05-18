@@ -19,7 +19,14 @@ Usage:
 import logging
 from pathlib import Path
 
+import matplotlib
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 import signalplot
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+from statsmodels.tsa.arima.model import ARIMA
+from statsmodels.tsa.seasonal import STL
 
 
 def load_config(config_path=None):
@@ -32,15 +39,8 @@ def load_config(config_path=None):
         return _yaml.safe_load(_f) or {}
 
 
-import matplotlib
 
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-from sklearn.metrics import mean_absolute_error, mean_squared_error
-from statsmodels.tsa.arima.model import ARIMA
-from statsmodels.tsa.seasonal import STL
 
 try:
     import pvlib
@@ -115,18 +115,15 @@ def forecast(
 ) -> tuple[pd.Series, pd.Series, dict]:
     train = series.iloc[:-test_days]
     test = series.iloc[-test_days:]
-
     # STL on training data
     result = stl_decompose(train)
     trend_train = result.trend
     seasonal_train = result.seasonal
     resid_train = result.resid
-
     # ARIMA on trend component
     arima_fit = fit_arima_on_trend(trend_train, ARIMA_ORDER)
     trend_forecast = arima_fit.forecast(steps=test_days)
     trend_forecast.index = test.index
-
     # Repeat last 365 days of seasonal pattern
     seasonal_cycle = seasonal_train.values[-365:]
     repeats = int(np.ceil(test_days / 365))
@@ -134,31 +131,21 @@ def forecast(
         np.tile(seasonal_cycle, repeats)[:test_days],
         index=test.index,
     )
-
     # Residual mean (small, mostly noise)
     resid_mean = float(resid_train.mean())
-
     forecast_series = trend_forecast + seasonal_forecast + resid_mean
     forecast_series = forecast_series.clip(lower=0)
-
     mae = mean_absolute_error(test, forecast_series)
     rmse = np.sqrt(mean_squared_error(test, forecast_series))
     mape = float(np.mean(np.abs((test - forecast_series) / test.clip(lower=0.1))) * 100)
-
     metrics = {"MAE": mae, "RMSE": rmse, "MAPE (%)": mape}
     return test, forecast_series, metrics
 
 
-def plot_full_series(
-    series: pd.Series, test_start: pd.Timestamp, path: str, plot: bool = False
-):
+def plot_full_series(series: pd.Series, test_start: pd.Timestamp, path: str, plot: bool = False):
     if plot:
-        fig, ax = plt.subplots(
-            figsize=tuple(config.get("output", {}).get("figsize", [12, 4]))
-        )
-        ax.plot(
-            series.index, series.values, linewidth=0.7, color="black", label="Daily GHI"
-        )
+        fig, ax = plt.subplots(figsize=tuple(config.get("output", {}).get("figsize", [12, 4])))
+        ax.plot(series.index, series.values, linewidth=0.7, color="black", label="Daily GHI")
         ax.axvline(
             test_start,
             color="red",
@@ -202,12 +189,8 @@ def plot_forecast(
     plot: bool = False,
 ):
     if plot:
-        fig, ax = plt.subplots(
-            figsize=tuple(config.get("output", {}).get("figsize", [12, 4]))
-        )
-        ax.plot(
-            actual.index, actual.values, color="black", linewidth=1.2, label="Actual"
-        )
+        fig, ax = plt.subplots(figsize=tuple(config.get("output", {}).get("figsize", [12, 4])))
+        ax.plot(actual.index, actual.values, color="black", linewidth=1.2, label="Actual")
         ax.plot(
             predicted.index,
             predicted.values,
@@ -236,13 +219,10 @@ def main():
         series.index[0].date(),
         series.index[-1].date(),
     )
-
     plot_full_series(series, series.index[-TEST_DAYS], "01_solar_full_series.png")
-
     # STL on full training window for display
     train_result = stl_decompose(series.iloc[:-TEST_DAYS])
     plot_stl(train_result, "02_solar_stl_decomposition.png")
-
     actual, predicted, metrics = forecast(series)
     logger.info("Forecast metrics: %s", metrics)
     for k, v in metrics.items():
