@@ -27,3 +27,8 @@ node_modules/
 .idea/
 .vscode/
 rust/target/
+# macOS metadata on external volumes
+._*
+.AppleDouble
+# Backup files (may contain secrets)
+*.bak
