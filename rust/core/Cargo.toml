@@ -1,0 +1,9 @@
+[package]
+name = "solar_power_production_forecasting_with_stl_decomposition_and_python_core"
+description = "Centered moving average trend (STL-style)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+path = "src/lib.rs"

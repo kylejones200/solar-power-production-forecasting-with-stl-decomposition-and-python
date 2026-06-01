@@ -1,0 +1,15 @@
+[package]
+name = "solar_power_production_forecasting_with_stl_decomposition_and_python_rs"
+description = "Python bindings (PyO3) for solar_power_production_forecasting_with_stl_decomposition_and_python_core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+name = "solar_power_production_forecasting_with_stl_decomposition_and_python_rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+solar_power_production_forecasting_with_stl_decomposition_and_python_core = { path = "../core" }
+pyo3 = { version = "0.28", features = ["extension-module"] }
+numpy = "0.28"
